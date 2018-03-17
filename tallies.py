@@ -20,10 +20,13 @@ def tally(tallyable='misfire'):
         # NOTE: this is really dangerous, but it only runs on my computer on my network
         redis.lpush(tallyable, dt.datetime.now().isoformat())
         tallies = redis.lrange(tallyable, -10, -1)
-        success = {"success": True,
-                   "tallies": list(tallies),
-                   "tallyable": tallyable,
-                   }
+        length = redis.llen(tallyable)
+        success = {
+            "success": True,
+            "tallyable": tallyable,
+            "tallyable_cnt": length,
+            "tallies": list(tallies),
+        }
         return jsonify(success)
     except RedisError as e:
         failure = {"success": False}

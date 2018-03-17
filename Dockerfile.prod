@@ -1,18 +1,18 @@
-# This works for DEV only!
+# This works for PROD only!
 FROM python:3.6
 MAINTAINER Bryce McDonnell <bryce@bridgetownint.com>
 
 ENV FLASK_APP tallies.py
-ENV FLASK_DEBUG 1
+ENV FLASK_DEBUG 0
 
 RUN mkdir /app
 WORKDIR /app
 
-# this is for prod?
 ADD requirements.txt /app
 
 RUN pip install --trusted-host pypi.python.org -r requirements.txt
 
 EXPOSE 5000
 
+# NOTE: this is not a suitable app server for a _real_ production env
 CMD ["python", "-m", "flask", "run", "--host", "0.0.0.0"]

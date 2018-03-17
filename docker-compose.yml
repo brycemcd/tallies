@@ -8,9 +8,10 @@ services:
 
   tally_app:
     build: .
-    command: ["python", "tallies.py"]
     depends_on:
       - redis
     ports:
       - 5000:5000
+    volumes:
+      - ./:/app
     restart: unless-stopped
