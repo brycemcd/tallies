@@ -41,4 +41,17 @@ Fail:
 {"success": False}
 ```
 
-Good luck figuring out why :P
+Good luck figuring out why the response failed :P
+
+
+## Alexa Handler
+
+In skill_handlers, a module called tallies exists which represents the AWS
+Lambda function that is called when Alexa wants to tally something. To deploy,
+simply copy and paste the module into the lambda function editor.
+
+TODO: make a _much_ better deployment paradigm for this.
+
+The lambda function handles intents from the Alexa skill and pushes messages onto
+an SQS queue. Another python script takes messages off that queue and stuff them
+into a database.

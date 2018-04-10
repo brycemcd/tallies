@@ -1,2 +1,4 @@
 Flask
 Redis
+pytest
+boto3

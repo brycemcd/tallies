@@ -1,0 +1,121 @@
+{
+    "interactionModel": {
+        "languageModel": {
+            "invocationName": "tally things",
+            "intents": [
+                {
+                    "name": "AMAZON.CancelIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.HelpIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.StopIntent",
+                    "samples": []
+                },
+                {
+                    "name": "tallyBeer",
+                    "slots": [],
+                    "samples": [
+                        "tally one beer",
+                        "tally a beer"
+                    ]
+                },
+                {
+                    "name": "tallyVodka",
+                    "slots": [],
+                    "samples": [
+                        "tally vodka",
+                        "tally one vodka"
+                    ]
+                },
+                {
+                    "name": "tallyWine",
+                    "slots": [],
+                    "samples": [
+                        "tally wine",
+                        "tally one wine"
+                    ]
+                },
+                {
+                    "name": "alldone",
+                    "slots": [],
+                    "samples": [
+                        "All done",
+                        "No more"
+                    ]
+                },
+                {
+                    "name": "tallyGeneric",
+                    "slots": [
+                        {
+                            "name": "drink",
+                            "type": "AMAZON.NUMBER"
+                        }
+                    ],
+                    "samples": [
+                        "tally one {drink}"
+                    ]
+                }
+            ],
+            "types": []
+        },
+        "dialog": {
+            "intents": [
+                {
+                    "name": "tallyBeer",
+                    "confirmationRequired": true,
+                    "prompts": {
+                        "confirmation": "Confirm.Intent.871054615412"
+                    },
+                    "slots": []
+                },
+                {
+                    "name": "tallyWine",
+                    "confirmationRequired": true,
+                    "prompts": {
+                        "confirmation": "Confirm.Intent.871054615412"
+                    },
+                    "slots": []
+                },
+                {
+                    "name": "tallyVodka",
+                    "confirmationRequired": true,
+                    "prompts": {
+                        "confirmation": "Confirm.Intent.871054615412"
+                    },
+                    "slots": []
+                },
+                {
+                    "name": "tallyGeneric",
+                    "confirmationRequired": false,
+                    "prompts": {},
+                    "slots": [
+                        {
+                            "name": "drink",
+                            "type": "AMAZON.NUMBER",
+                            "confirmationRequired": false,
+                            "elicitationRequired": true,
+                            "prompts": {
+                                "elicitation": ""
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        "prompts": [
+            {
+                "id": "Confirm.Intent.871054615412",
+                "variations": [
+                    {
+                        "type": "PlainText",
+                        "value": "word homie"
+                    }
+                ]
+            }
+        ]
+    }
+}
