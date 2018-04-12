@@ -19,17 +19,21 @@ error_queue = sqs.get_queue_by_name(QueueName='tallies-errors-dev')
 
 # --------------- Helpers that build all of the responses ----------------------
 
-def build_speechlet_response(title, output, reprompt_text, should_end_session):
-    return {
-        'outputSpeech': {
-            'type': 'PlainText',
-            'text': output
-        },
+def build_speechlet_response(title, output, reprompt_text, should_end_session, with_card=True):
+    card = {
         'card': {
             'type': 'Simple',
             'title': "TallyApp - " + title,
             'content': "TallyApp - " + output
+        }
+    }
+
+    resp = {
+        'outputSpeech': {
+            'type': 'PlainText',
+            'text': output
         },
+
         'reprompt': {
             'outputSpeech': {
                 'type': 'PlainText',
@@ -38,6 +42,11 @@ def build_speechlet_response(title, output, reprompt_text, should_end_session):
         },
         'shouldEndSession': should_end_session
     }
+
+    if with_card:
+        return {**resp, **card}
+    else:
+        return {**resp}
 
 
 def build_response(session_attributes, speechlet_response):
@@ -133,14 +142,15 @@ def get_color_from_session(intent, session):
         intent['name'], speech_output, reprompt_text, should_end_session))
 
 
-def tally_one_drink(drink, intent, session):
+def tally_one_drink(drink, intent, cnt=1):
     """puts a tally on a queue"""
+
     session_attributes = {}
-    speech_output = "Yeah, okay you drunk"
-    reprompt_text = "Hey drinky mcdrinkerson, what'd you have?"
+    speech_output = "Whoa - %s %s" % (cnt, drink)
+    reprompt_text = "You're too drunk. Try again later."
 
     queued_msg = {
-        "tally_cnt": 1,
+        "tally_cnt": cnt,
         "tally_type": drink,
         "message_created_dttm": dt.datetime.now().isoformat(timespec='seconds'),
         "intent": intent,
@@ -151,30 +161,18 @@ def tally_one_drink(drink, intent, session):
     speechlet_response = build_speechlet_response(intent['name'],
                                                   speech_output,
                                                   reprompt_text,
-                                                  False)
+                                                  False,
+                                                  with_card=False)
 
     return build_response(session_attributes, speechlet_response)
 
 
-def tally_beer(intent, session):
-    """tallies one beer"""
-    return tally_one_drink('beer', intent, session)
-
-
-def tally_vodka(intent, session):
-    """tallies one vodka"""
-    return tally_one_drink('vodka', intent, session)
-
-
-def tally_wine(intent, session):
-    """tallies one wine"""
-    return tally_one_drink('wine', intent, session)
-
-
 def tally_generic(intent, session):
     """tallies one generic"""
-    drink = intent['']
-    return tally_one_drink('generic', intent, session)
+
+    drink = intent['slots']['drink']['value']
+    cnt = intent['slots']['cnt'].get('value', 1)
+    return tally_one_drink(drink, intent, cnt)
 
 
 # --------------- events ------------------
@@ -208,21 +206,11 @@ def on_intent(intent_request, session):
     intent_name = intent_request['intent']['name']
 
     # dispatch to your skill's intent handlers
-    if intent_name == "mycolorisintent":
-        return set_color_in_session(intent, session)
-    elif intent_name == "whatsMycolorIntent":
-        return get_color_from_session(intent, session)
-    elif intent_name == "AMAZON.HelpIntent":
+    if intent_name == "AMAZON.HelpIntent":
         return get_welcome_response()
     elif intent_name == "AMAZON.CancelIntent" or intent_name == "AMAZON.StopIntent":
         return handle_session_end_request()
-    elif intent_name == "tallyBeer":
-        return tally_beer(intent, session)
-    elif intent_name == "tallyVodka":
-        return tally_vodka(intent, session)
-    elif intent_name == "tallyWine":
-        return tally_wine(intent, session)
-    elif intent_name == "tallyGeneric":
+    elif intent_name == "tallyBeverage":
         return tally_generic(intent, session)
     else:
         error_queue.send_message(MessageBody=json.dumps({**intent_request,

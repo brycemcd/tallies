@@ -13,94 +13,104 @@
                 },
                 {
                     "name": "AMAZON.StopIntent",
-                    "samples": []
-                },
-                {
-                    "name": "tallyBeer",
-                    "slots": [],
-                    "samples": [
-                        "tally one beer",
-                        "tally a beer"
-                    ]
-                },
-                {
-                    "name": "tallyVodka",
-                    "slots": [],
-                    "samples": [
-                        "tally vodka",
-                        "tally one vodka"
-                    ]
-                },
-                {
-                    "name": "tallyWine",
-                    "slots": [],
-                    "samples": [
-                        "tally wine",
-                        "tally one wine"
-                    ]
-                },
-                {
-                    "name": "alldone",
-                    "slots": [],
                     "samples": [
                         "All done",
                         "No more"
                     ]
                 },
                 {
-                    "name": "tallyGeneric",
+                    "name": "tallyBeverage",
                     "slots": [
                         {
                             "name": "drink",
+                            "type": "LIST_OF_DRINKS",
+                            "samples": [
+                                "{drink}",
+                                "tally two {drink}"
+                            ]
+                        },
+                        {
+                            "name": "cnt",
                             "type": "AMAZON.NUMBER"
                         }
                     ],
                     "samples": [
+                        "{cnt} {drink}",
+                        "{drink}",
                         "tally one {drink}"
                     ]
                 }
             ],
-            "types": []
+            "types": [
+                {
+                    "name": "LIST_OF_DRINKS",
+                    "values": [
+                        {
+                            "name": {
+                                "value": "other"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "wine",
+                                "synonyms": [
+                                    "wines",
+                                    "glasses of wine"
+                                ]
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "vodka",
+                                "synonyms": [
+                                    "vodkas"
+                                ]
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "beer",
+                                "synonyms": [
+                                    "ipa"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "TALLYABLE",
+                    "values": [
+                        {
+                            "name": {
+                                "value": "foo"
+                            }
+                        }
+                    ]
+                }
+            ]
         },
         "dialog": {
             "intents": [
                 {
-                    "name": "tallyBeer",
-                    "confirmationRequired": true,
-                    "prompts": {
-                        "confirmation": "Confirm.Intent.871054615412"
-                    },
-                    "slots": []
-                },
-                {
-                    "name": "tallyWine",
-                    "confirmationRequired": true,
-                    "prompts": {
-                        "confirmation": "Confirm.Intent.871054615412"
-                    },
-                    "slots": []
-                },
-                {
-                    "name": "tallyVodka",
-                    "confirmationRequired": true,
-                    "prompts": {
-                        "confirmation": "Confirm.Intent.871054615412"
-                    },
-                    "slots": []
-                },
-                {
-                    "name": "tallyGeneric",
+                    "name": "tallyBeverage",
                     "confirmationRequired": false,
                     "prompts": {},
                     "slots": [
                         {
                             "name": "drink",
-                            "type": "AMAZON.NUMBER",
+                            "type": "LIST_OF_DRINKS",
                             "confirmationRequired": false,
                             "elicitationRequired": true,
                             "prompts": {
-                                "elicitation": ""
+                                "elicitation": "Confirm.Intent.871054615412"
                             }
+                        },
+                        {
+                            "name": "cnt",
+                            "type": "AMAZON.NUMBER",
+                            "confirmationRequired": false,
+                            "elicitationRequired": false,
+                            "prompts": {}
                         }
                     ]
                 }
@@ -112,7 +122,7 @@
                 "variations": [
                     {
                         "type": "PlainText",
-                        "value": "word homie"
+                        "value": "What drink would you like to tally?"
                     }
                 ]
             }
