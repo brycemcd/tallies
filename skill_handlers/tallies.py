@@ -11,10 +11,11 @@ from __future__ import print_function
 import boto3
 import json
 import datetime as dt
+import os
 
 sqs = boto3.resource('sqs')
-queue = sqs.get_queue_by_name(QueueName='tallies-dev-and-test')
-error_queue = sqs.get_queue_by_name(QueueName='tallies-errors-dev')
+queue = sqs.get_queue_by_name(QueueName=os.getenv('TALLY_QUEUE_NAME', 'tallies-dev-and-test'))
+error_queue = sqs.get_queue_by_name(QueueName=os.getenv('ERROR_QUEUE_NAME','tallies-errors-dev'))
 
 
 # --------------- Helpers that build all of the responses ----------------------
@@ -147,7 +148,7 @@ def tally_one_drink(drink, intent, cnt=1):
 
     session_attributes = {}
     speech_output = "Whoa - %s %s" % (cnt, drink)
-    reprompt_text = "You're too drunk. Try again later."
+    reprompt_text = "You're too drunk. Try again."
 
     queued_msg = {
         "tally_cnt": cnt,
