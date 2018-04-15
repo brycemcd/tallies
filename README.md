@@ -55,3 +55,6 @@ TODO: make a _much_ better deployment paradigm for this.
 The lambda function handles intents from the Alexa skill and pushes messages onto
 an SQS queue. Another python script takes messages off that queue and stuff them
 into a database.
+
+A consumer of the queue picks messages off the queue and persists them into a
+data store.

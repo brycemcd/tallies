@@ -2,7 +2,7 @@
 FROM python:3.6
 MAINTAINER Bryce McDonnell <bryce@bridgetownint.com>
 
-ENV FLASK_APP tallies.py
+ENV FLASK_APP tally_http.py
 ENV FLASK_DEBUG 1
 
 RUN mkdir /app
