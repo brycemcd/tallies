@@ -1,7 +1,23 @@
 from datetime import datetime, timedelta
 import pytest
 from unittest.mock import MagicMock
-from tally.tallyable import Tallyable
+from tally.tallyable import Tallyable, TallyableNormalizer
+
+class TestTallyableNormalizer():
+
+    @pytest.mark.parametrize("submitted, normalized", [
+        ("beers", "beer"),
+        ("ipa", "beer"),
+        ("vodkas", "vodka"),
+        ("glass of wine", "wine"),
+        ("glasses of wine", "wine"),
+        # If we haven't mapped it, just return the tallyable
+        ("foo", "foo"),
+    ])
+    def test_normalizer(self, submitted, normalized):
+        result = TallyableNormalizer.normalize(submitted)
+        assert normalized == result
+
 
 class TestTallyable():
 
@@ -31,9 +47,10 @@ class TestTallyable():
 
     def test_init(self):
         persistable = MagicMock()
-        obj = Tallyable(persistable)
+        obj = Tallyable(persistable, self.DEFAULT_TALLYABLE_THING)
 
         assert obj.persistable is not None
+        assert obj.tallyable == self.DEFAULT_TALLYABLE_THING
 
     testdata = [
         (True, "tallyable_thing", None, True),
@@ -49,15 +66,15 @@ class TestTallyable():
         else:
             persistable = self.fake_persistable_with_side_effect()
 
-        obj = Tallyable(persistable)
+        obj = Tallyable(persistable, tallyable_thing)
 
         if dttm and type(dttm) == datetime:
-            result = obj.add(tallyable_thing, dttm)
+            result = obj.add(dttm)
             called_dttm = dttm.isoformat()
             persistable.lpush.assert_called_once_with(tallyable_thing,
                                                       called_dttm)
         else:
-            result = obj.add(tallyable_thing)
+            result = obj.add()
             persistable.lpush.assert_called_once()
 
         assert result is expected
@@ -90,8 +107,8 @@ class TestTallyable():
             persistable.lrange.return_value = dttms
             persistable.llen.return_value = len(dttms)
 
-        obj = Tallyable(persistable)
+        obj = Tallyable(persistable, self.DEFAULT_TALLYABLE_THING)
 
-        assert obj.get_tallies_for_tallyable(self.DEFAULT_TALLYABLE_THING) == (dttms, len(dttms))
+        assert obj.get_tallies_for_tallyable() == (dttms, len(dttms))
         persistable.lrange.assert_called_once()
         persistable.llen.assert_called_once()
