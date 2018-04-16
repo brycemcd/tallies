@@ -58,3 +58,9 @@ into a database.
 
 A consumer of the queue picks messages off the queue and persists them into a
 data store.
+
+## Secrets
+
+By default, docker-compose will look for a file in the app's root directory
+called secrets.txt. This file should store NAME=value keypairs to hold environment
+variables. Required parameters are committed to the repository as secrets.txt.example

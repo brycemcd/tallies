@@ -65,7 +65,7 @@ def process_message(msg):
         print("%s is already processed" % msg.message_id)
     else:
         _tally_message(msg)
-        # TODO: delete the message
+    msg.delete()
 
 
 def _tally_message(msg):

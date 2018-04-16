@@ -2,11 +2,12 @@ version: '2'
 services:
   redis:
     image: redis:alpine
+    # TODO: I got this wrong. Use a docker volume here
     volumes:
       - ./data:/data
     restart: unless-stopped
 
-  tally_app:
+  tally_http:
     build: .
     depends_on:
       - redis
@@ -15,3 +16,16 @@ services:
     volumes:
       - ./:/app
     restart: unless-stopped
+    env_file: "secrets.txt"
+
+  tally_queue_consumer:
+    build: .
+    depends_on:
+      - redis
+    ports:
+      - 5000:5000
+    volumes:
+      - ./:/app
+    restart: unless-stopped
+    env_file: "secrets.txt"
+    command: python /app/skill_handlers/tally_queue_consumer.py
