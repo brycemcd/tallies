@@ -85,6 +85,7 @@ def _tally_message(msg):
 
 
 def main():
+    print("starting queue consumer")
     while True:
         get_messages_from_queue(process_message)
 

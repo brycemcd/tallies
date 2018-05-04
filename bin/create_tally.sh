@@ -16,7 +16,7 @@ TALLYABLE=$1
 fi
 
 HOST=10.1.2.228
-PORT=5000
+PORT=5001
 # NOTE: at some point, I'll create a DNS entry for this app so it can move safely
 echo $(curl -XPOST -# http://${HOST}:${PORT}/v1/tally/${TALLYABLE})
 

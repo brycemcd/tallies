@@ -88,7 +88,7 @@ class Tallyable():
 
         try:
             # get the last n items (the n most recently pushed) on the list
-            dttms = self.persistable.lrange(self.tallyable, (n*-1), -1)
+            dttms = self.persistable.lrange(self.tallyable, 0, (n-1))
             length = self.persistable.llen(self.tallyable)
         except Exception as e:
             dttms, length = [], 0
