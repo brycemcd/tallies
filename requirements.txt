@@ -2,3 +2,4 @@ Flask
 Redis
 pytest
 boto3
+psycopg2

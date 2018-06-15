@@ -2,6 +2,8 @@
 Core business logic
 """
 from datetime import datetime
+from utilities.db import DB
+from psycopg2 import IntegrityError
 
 
 class TallyableNormalizer():
@@ -34,13 +36,68 @@ class TallyableNormalizer():
         mapped = cls.MAPPER.get(tallyable)
         return mapped if mapped else tallyable
 
+class TallyablePersistence:
+    """
+    A small abstraction for storing tallyables
+    """
+
+    # TODO: refactor tallyable and db_klass out of the method calls
+
+    @staticmethod
+    def save(tallyable, dttm, db_klass=DB):
+        try:
+            db = db_klass()
+            db.execute("""
+                INSERT INTO tallies (tallyable_item, tally_dttm)
+                VALUES ((SELECT id
+                        FROM tallyable_items
+                        WHERE tallyable_item = %s), %s)
+            """, (tallyable, dttm))
+            # NOTE `execute` always returns None
+            return True
+        except IntegrityError:
+            return False
+
+    @staticmethod
+    def last_n(tallyable, n, db_klass=DB):
+        db = db_klass()
+        records = db.fetch_records("""
+            SELECT
+                tally_dttm
+            FROM tallies
+            WHERE tallyable_item = (
+              SELECT id
+              FROM tallyable_items
+              WHERE tallyable_item = %s
+            )
+            LIMIT %s
+        """, (tallyable, n))
+
+        return [record[0] for record in records]
+
+    @staticmethod
+    def total_cnt(tallyable, db_klass=DB):
+        db = db_klass()
+        cnt = db.fetch_one("""
+            SELECT
+                COUNT(*) AS cnt
+            FROM tallies
+            WHERE tallyable_item = (
+              SELECT id
+              FROM tallyable_items
+              WHERE tallyable_item = %s
+            )
+        """, (tallyable,))
+
+        return cnt[0]
+
 
 class Tallyable():
     """
     Handles stuff
     """
 
-    def __init__(self, persistable, tallyable, normalizing_klass=TallyableNormalizer):
+    def __init__(self, tallyable, persistable_klass=TallyablePersistence, normalizing_klass=TallyableNormalizer):
         """
         Instantiate the class with a persistable (Redis in this case)
 
@@ -50,8 +107,8 @@ class Tallyable():
             can turn a string into a normalized string (see default class docs)
         """
 
-        self.persistable = persistable
         self.tallyable = normalizing_klass.normalize(tallyable)
+        self.persistable = persistable_klass
 
     def add(self, dttm=None):
         """
@@ -60,20 +117,14 @@ class Tallyable():
         :param dttm: a dttm object indicating when the tallyable thing happened
         :return: Boolean value if the tallyable was added
         """
+
         if not dttm or type(dttm) != datetime:
             dttm = datetime.now()
 
         # mutate the datetime obj into a string that can be safely persisted
         dttm = dttm.isoformat()
-        result = None
 
-        try:
-            result = self.persistable.lpush(self.tallyable, dttm)
-
-        # Our persistence layer may not be available at the time
-        # or the request to it is garbage
-        except Exception as e:
-            pass
+        result = self.persistable.save(self.tallyable, dttm)
 
         return result
 
@@ -81,16 +132,9 @@ class Tallyable():
         """
         Return the last n tallies and a total count for a tallyable
 
-        :param tallyable: a string indicating the tallyable
         :param n: an int to indicate how many to return
-        :return:
+        :return: tuple of last n datetimes and total count of specific tallyable
         """
 
-        try:
-            # get the last n items (the n most recently pushed) on the list
-            dttms = self.persistable.lrange(self.tallyable, 0, (n-1))
-            length = self.persistable.llen(self.tallyable)
-        except Exception as e:
-            dttms, length = [], 0
-
-        return (dttms, length)
+        return self.persistable.last_n(self.tallyable, n),\
+               self.persistable.total_cnt(self.tallyable)

@@ -74,7 +74,7 @@ def _tally_message(msg):
     msg_contents = json.loads(msg.body)
     print("processing %s" % msg_contents['tally_type'])
     if msg_contents['tally_cnt'] and msg_contents['tally_type']:
-        tallyable = Tallyable(redis, msg_contents['tally_type'])
+        tallyable = Tallyable(msg_contents['tally_type'])
 
     dttm = datetime.strptime(msg_contents['message_created_dttm'],
                              "%Y-%m-%dT%H:%M:%S")
